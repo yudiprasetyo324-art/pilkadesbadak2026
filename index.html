@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cek DPT Online - Pilkades Desa Badak 2026</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Poppins & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SheetJS (xlsx) for Excel Processing -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .hero-pattern {
+            background-color: #14532d;
+            background-image: radial-gradient(#16a34a 0.75px, #14532d 0.75px);
+            background-size: 15px 15px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="bg-brand-900 text-white shadow-xl sticky top-0 z-40 border-b border-brand-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-2xl bg-brand-700 flex items-center justify-center shadow-inner border border-brand-500">
+                        <i class="fa-solid fa-box-archive text-amber-300 text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-base sm:text-lg tracking-tight">PILKADES DESA BADAK 2026</h1>
+                        <p class="text-xs text-brand-200">Kec. Belik, Kab. Pemalang • Senin, 9 Nov 2026</p>
+                    </div>
+                </div>
+                <div class="hidden lg:flex items-center space-x-5 text-sm font-medium">
+                    <a href="#beranda" class="hover:text-amber-300 transition">Beranda</a>
+                    <a href="#cek-dpt" class="hover:text-amber-300 transition">Cek DPT Online</a>
+                    <a href="#info-tps" class="hover:text-amber-300 transition">4 TPS Sekolah</a>
+                    <a href="#statistik" class="hover:text-amber-300 transition">Statistik</a>
+                    <button onclick="openCoklitModal()" class="bg-emerald-700 hover:bg-emerald-600 text-white font-medium px-4 py-2 rounded-xl text-xs shadow transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-clipboard-user"></i>
+                        <span>Petugas Coklit</span>
+                    </button>
+                    <button onclick="openAdminLoginModal()" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-4 py-2 rounded-xl text-xs shadow transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-lock"></i>
+                        <span>Login Admin DPT</span>
+                    </button>
+                </div>
+                <div class="lg:hidden flex items-center">
+                    <button onclick="toggleMobileMenu()" class="text-white focus:outline-none p-2 rounded-lg hover:bg-brand-800">
+                        <i id="menu-icon" class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Dropdown Menu -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-brand-800 px-4 pt-3 pb-5 space-y-2 border-t border-brand-700">
+            <a href="#beranda" class="block py-2 px-3 rounded hover:bg-brand-700 text-sm">Beranda</a>
+            <a href="#cek-dpt" class="block py-2 px-3 rounded hover:bg-brand-700 text-sm">Cek DPT Online</a>
+            <a href="#info-tps" class="block py-2 px-3 rounded hover:bg-brand-700 text-sm">4 TPS Sekolah</a>
+            <a href="#statistik" class="block py-2 px-3 rounded hover:bg-brand-700 text-sm">Statistik</a>
+            <button onclick="openCoklitModal()" class="w-full mt-1 bg-emerald-700 hover:bg-emerald-600 text-white font-semibold px-4 py-2.5 rounded-xl text-xs text-left flex items-center space-x-2">
+                <i class="fa-solid fa-clipboard-user"></i><span>Portal Petugas Coklit</span>
+            </button>
+            <button onclick="openAdminLoginModal()" class="w-full mt-1 bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-4 py-2.5 rounded-xl text-xs text-left flex items-center space-x-2">
+                <i class="fa-solid fa-lock"></i><span>Login Admin DPT (Upload Excel)</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <!-- HERO BANNER -->
+        <section id="beranda" class="hero-pattern text-white py-16 lg:py-24 px-4 sm:px-6 lg:px-8 text-center relative overflow-hidden">
+            <div class="max-w-4xl mx-auto relative z-10 space-y-4">
+                <span class="inline-block bg-amber-400 text-slate-900 text-xs sm:text-sm font-bold px-4 py-1.5 rounded-full uppercase tracking-wider shadow">
+                    <i class="fa-solid fa-calendar-days mr-1.5"></i> Pelaksanaan Hari H: Senin, 9 November 2026
+                </span>
+                <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
+                    Daftar Pemilih Tetap (DPT) <br><span class="text-amber-300">Desa Badak Kec. Belik 2026</span>
+                </h2>
+                <p class="text-sm sm:text-base text-brand-100 max-w-2xl mx-auto font-light">
+                    Portal resmi pengecekan hak pilih Pemilihan Kepala Desa Badak. Melayani 4 TPS strategis di fasilitas sekolah desa. Masukkan NIK atau Nama lengkap Anda di bawah.
+                </p>
+                <div class="pt-4 flex flex-col sm:flex-row justify-center gap-3">
+                    <a href="#cek-dpt" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-7 py-3.5 rounded-xl shadow-lg transition flex items-center justify-center space-x-2 text-sm">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <span>Cek Hak Pilih DPT Anda</span>
+                    </a>
+                    <a href="#info-tps" class="bg-brand-800 hover:bg-brand-700 border border-brand-600 text-white font-medium px-7 py-3.5 rounded-xl transition flex items-center justify-center space-x-2 text-sm">
+                        <i class="fa-solid fa-school"></i>
+                        <span>Lihat Lokasi 4 TPS Sekolah</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- DPT SEARCH CARD -->
+        <section id="cek-dpt" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-20 mb-16">
+            <div class="bg-white rounded-3xl shadow-2xl border border-slate-100 p-6 sm:p-10">
+                <div class="text-center mb-8">
+                    <span class="bg-brand-100 text-brand-800 text-xs font-bold px-3 py-1 rounded-full">Pencarian Warga</span>
+                    <h3 class="text-2xl font-bold text-slate-900 mt-2">Cek Status DPT Online</h3>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-1">Cari berdasarkan 16 digit NIK atau Nama Lengkap sesuai KTP.</p>
+                </div>
+
+                <form onsubmit="handleSearch(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">NIK (16 Digit) atau Nama Lengkap</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+                                    <i class="fa-solid fa-id-card"></i>
+                                </span>
+                                <input type="text" id="searchInput" required placeholder="Contoh: 332704... atau Nama Warga" class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Filter TPS / Dusun</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+                                    <i class="fa-solid fa-filter"></i>
+                                </span>
+                                <select id="filterTps" class="w-full pl-11 pr-8 py-3.5 bg-slate-50 border border-slate-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm appearance-none cursor-pointer">
+                                    <option value="ALL">Semua TPS (1 s.d 4)</option>
+                                    <option value="TPS 1">TPS 1 - Dusun Krajan</option>
+                                    <option value="TPS 2">TPS 2 - Dusun Jurangjero</option>
+                                    <option value="TPS 3">TPS 3 - Dusun Situmpeng</option>
+                                    <option value="TPS 4">TPS 4 - Dusun Simadu</option>
+                                </select>
+                                <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 pointer-events-none">
+                                    <i class="fa-solid fa-chevron-down text-xs"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row justify-between items-center pt-2 gap-4">
+                        <p class="text-xs text-slate-400 flex items-center">
+                            <i class="fa-solid fa-circle-info text-brand-600 mr-1.5"></i> Database tersinkronisasi dengan file Excel Panitia Pilkades.
+                        </p>
+                        <button type="submit" class="w-full sm:w-auto bg-brand-700 hover:bg-brand-800 text-white font-semibold px-8 py-3.5 rounded-2xl shadow transition flex items-center justify-center space-x-2 text-sm">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <span>Cari DPT Sekarang</span>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Results Container -->
+                <div id="searchResultBox" class="mt-8 pt-8 border-t border-slate-100 hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="font-bold text-slate-800 text-base flex items-center">
+                            <i class="fa-solid fa-clipboard-list text-brand-600 mr-2"></i> Hasil Pencarian Pemilih
+                        </h4>
+                        <span id="resultCountBadge" class="bg-brand-100 text-brand-800 text-xs font-bold px-3 py-1 rounded-full">0 Ditemukan</span>
+                    </div>
+                    <div id="resultCardsList" class="space-y-4"></div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptySearchState" class="mt-8 text-center py-10 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                    <i class="fa-solid fa-address-book text-4xl text-slate-300 mb-2"></i>
+                    <p class="text-sm font-medium text-slate-600">Silakan masukkan NIK atau Nama Anda untuk memeriksa penempatan TPS.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4 TPS SEKOLAH LOCATIONS -->
+        <section id="info-tps" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <span class="text-brand-700 font-bold text-xs uppercase tracking-widest bg-brand-100 px-3 py-1 rounded-full">Lokasi Pemungutan Suara</span>
+                <h3 class="text-3xl font-bold text-slate-900 mt-3">4 TPS Resmi Berbasis Sekolah Desa Badak</h3>
+                <p class="text-slate-500 text-sm mt-2">Seluruh TPS dipusatkan di fasilitas pendidikan untuk kelancaran hari pencoblosan Senin, 9 November 2026.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- TPS 1 -->
+                <div class="bg-white rounded-3xl shadow-md hover:shadow-xl transition border border-slate-200 overflow-hidden flex flex-col justify-between">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="bg-brand-100 text-brand-800 text-xs font-bold px-3 py-1 rounded-xl">TPS 01</span>
+                            <span class="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg"><i class="fa-solid fa-users mr-1"></i> <span id="count-tps1">520</span> Pemilih</span>
+                        </div>
+                        <h4 class="text-lg font-bold text-slate-900 mb-1">Dusun Krajan</h4>
+                        <p class="text-xs text-rose-600 font-semibold mb-3 flex items-center">
+                            <i class="fa-solid fa-school mr-1.5 text-rose-500"></i> SDN 01 Badak
+                        </p>
+                        <p class="text-xs text-slate-600">Melayani pemilih warga Dusun Krajan RT 01 s.d RT 03.</p>
+                    </div>
+                    <button onclick="filterByTpsQuick('TPS 1')" class="bg-slate-50 hover:bg-brand-50 text-brand-700 font-semibold py-3 px-4 text-xs border-t border-slate-100 transition flex items-center justify-center space-x-2">
+                        <span>Lihat Warga TPS 1</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </button>
+                </div>
+
+                <!-- TPS 2 -->
+                <div class="bg-white rounded-3xl shadow-md hover:shadow-xl transition border border-slate-200 overflow-hidden flex flex-col justify-between">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-xl">TPS 02</span>
+                            <span class="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg"><i class="fa-solid fa-users mr-1"></i> <span id="count-tps2">490</span> Pemilih</span>
+                        </div>
+                        <h4 class="text-lg font-bold text-slate-900 mb-1">Dusun Jurangjero</h4>
+                        <p class="text-xs text-rose-600 font-semibold mb-3 flex items-center">
+                            <i class="fa-solid fa-school mr-1.5 text-rose-500"></i> SDN 03 Badak
+                        </p>
+                        <p class="text-xs text-slate-600">Melayani pemilih warga Dusun Jurangjero RT 04 s.d RT 06.</p>
+                    </div>
+                    <button onclick="filterByTpsQuick('TPS 2')" class="bg-slate-50 hover:bg-brand-50 text-brand-700 font-semibold py-3 px-4 text-xs border-t border-slate-100 transition flex items-center justify-center space-x-2">
+                        <span>Lihat Warga TPS 2</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </button>
+                </div>
+
+                <!-- TPS 3 -->
+                <div class="bg-white rounded-3xl shadow-md hover:shadow-xl transition border border-slate-200 overflow-hidden flex flex-col justify-between">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-xl">TPS 03</span>
+                            <span class="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg"><i class="fa-solid fa-users mr-1"></i> <span id="count-tps3">450</span> Pemilih</span>
+                        </div>
+                        <h4 class="text-lg font-bold text-slate-900 mb-1">Dusun Situmpeng</h4>
+                        <p class="text-xs text-rose-600 font-semibold mb-3 flex items-center">
+                            <i class="fa-solid fa-school mr-1.5 text-rose-500"></i> SDN 04 Badak
+                        </p>
+                        <p class="text-xs text-slate-600">Melayani pemilih warga Dusun Situmpeng RT 07 s.d RT 09.</p>
+                    </div>
+                    <button onclick="filterByTpsQuick('TPS 3')" class="bg-slate-50 hover:bg-brand-50 text-brand-700 font-semibold py-3 px-4 text-xs border-t border-slate-100 transition flex items-center justify-center space-x-2">
+                        <span>Lihat Warga TPS 3</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </button>
+                </div>
+
+                <!-- TPS 4 -->
+                <div class="bg-white rounded-3xl shadow-md hover:shadow-xl transition border border-slate-200 overflow-hidden flex flex-col justify-between">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="bg-purple-100 text-purple-800 text-xs font-bold px-3 py-1 rounded-xl">TPS 04</span>
+                            <span class="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg"><i class="fa-solid fa-users mr-1"></i> <span id="count-tps4">390</span> Pemilih</span>
+                        </div>
+                        <h4 class="text-lg font-bold text-slate-900 mb-1">Dusun Simadu</h4>
+                        <p class="text-xs text-rose-600 font-semibold mb-3 flex items-center">
+                            <i class="fa-solid fa-school mr-1.5 text-rose-500"></i> SDN 02 Badak
+                        </p>
+                        <p class="text-xs text-slate-600">Melayani pemilih warga Dusun Simadu RT 10 s.d RT 12.</p>
+                    </div>
+                    <button onclick="filterByTpsQuick('TPS 4')" class="bg-slate-50 hover:bg-brand-50 text-brand-700 font-semibold py-3 px-4 text-xs border-t border-slate-100 transition flex items-center justify-center space-x-2">
+                        <span>Lihat Warga TPS 4</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- STATISTICS & EXCEL DOWNLOAD -->
+        <section id="statistik" class="bg-slate-100 py-16 border-t border-slate-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-2xl mx-auto mb-12">
+                    <h3 class="text-2xl sm:text-3xl font-bold text-slate-900">Statistik Rekapitulasi DPT 2026</h3>
+                    <p class="text-slate-500 text-sm mt-2">Rekapitulasi total pemilih tetap berdasarkan sinkronisasi database Excel.</p>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 text-center">
+                        <div class="w-12 h-12 bg-brand-100 text-brand-700 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl font-bold">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <h4 class="text-2xl sm:text-3xl font-extrabold text-slate-900" id="statTotal">1,850</h4>
+                        <p class="text-xs text-slate-500 mt-1 uppercase font-semibold">Total DPT Desa</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 text-center">
+                        <div class="w-12 h-12 bg-blue-100 text-blue-700 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl font-bold">
+                            <i class="fa-solid fa-mars"></i>
+                        </div>
+                        <h4 class="text-2xl sm:text-3xl font-extrabold text-slate-900" id="statMale">939</h4>
+                        <p class="text-xs text-slate-500 mt-1 uppercase font-semibold">Laki-Laki (L)</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 text-center">
+                        <div class="w-12 h-12 bg-pink-100 text-pink-700 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl font-bold">
+                            <i class="fa-solid fa-venus"></i>
+                        </div>
+                        <h4 class="text-2xl sm:text-3xl font-extrabold text-slate-900" id="statFemale">911</h4>
+                        <p class="text-xs text-slate-500 mt-1 uppercase font-semibold">Perempuan (P)</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 text-center">
+                        <div class="w-12 h-12 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl font-bold">
+                            <i class="fa-solid fa-school"></i>
+                        </div>
+                        <h4 class="text-2xl sm:text-3xl font-extrabold text-slate-900">4 TPS</h4>
+                        <p class="text-xs text-slate-500 mt-1 uppercase font-semibold">Fasilitas Sekolah</p>
+                    </div>
+                </div>
+
+                <!-- Excel Actions Banner -->
+                <div class="bg-brand-900 text-white rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between shadow-2xl">
+                    <div class="space-y-2 mb-6 md:mb-0 text-center md:text-left">
+                        <span class="bg-brand-700 text-amber-300 text-xs font-bold px-3.5 py-1 rounded-full uppercase">Manajemen Excel DPT</span>
+                        <h4 class="text-xl font-bold">Unduh Format Spreadsheet / Upload Data Baru</h4>
+                        <p class="text-brand-200 text-sm max-w-xl">Panitia dapat mengunduh format Excel (.xlsx) atau masuk ke panel Admin untuk memperbarui database.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-3 justify-center">
+                        <button onclick="downloadExcelTemplate()" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-5 py-3 rounded-2xl shadow transition text-xs flex items-center space-x-2">
+                            <i class="fa-solid fa-file-excel text-base"></i>
+                            <span>Download Template Excel</span>
+                        </button>
+                        <button onclick="openAdminLoginModal()" class="bg-brand-700 hover:bg-brand-600 text-white font-bold px-5 py-3 rounded-2xl shadow transition text-xs flex items-center space-x-2">
+                            <i class="fa-solid fa-cloud-arrow-up text-base"></i>
+                            <span>Upload File Excel (Admin)</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ADMIN LOGIN MODAL -->
+    <div id="adminLoginModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 sm:p-8 animate-fade-in relative">
+            <button onclick="closeAdminLoginModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 p-1">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <div class="text-center mb-6">
+                <div class="w-14 h-14 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl shadow-inner">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-900">Login Admin DPT Online</h3>
+                <p class="text-xs text-slate-500 mt-1">Masukkan PIN Panitia Pilkades untuk mengakses upload database Excel & kelola data pemilih.</p>
+            </div>
+            <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-2">PIN / Password Admin</label>
+                    <input type="password" id="adminPinInput" required placeholder="Default PIN: badak2026" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm">
+                </div>
+                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-3.5 rounded-2xl transition shadow text-sm">
+                    Masuk ke Dashboard Admin
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADMIN DASHBOARD MODAL (CRUD & EXCEL UPLOAD) -->
+    <div id="adminDashboardModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col animate-fade-in overflow-hidden relative">
+            <div class="bg-brand-900 text-white px-6 py-4 flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-brand-700 flex items-center justify-center text-amber-300">
+                        <i class="fa-solid fa-database"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-base">Dashboard Admin & Upload DPT Excel</h3>
+                        <p class="text-xs text-brand-200">Kelola database pemilih untuk 4 TPS Sekolah Desa Badak</p>
+                    </div>
+                </div>
+                <button onclick="closeAdminDashboard()" class="text-slate-300 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto flex-grow space-y-6">
+                <!-- Top Action Bar -->
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-brand-100 text-brand-800 text-xs font-bold px-3 py-1.5 rounded-xl">Total Database: <span id="adminTotalCount">0</span> Warga</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                        <button onclick="openVoterFormModal()" class="bg-brand-700 hover:bg-brand-800 text-white font-semibold px-4 py-2.5 rounded-xl text-xs shadow flex items-center space-x-1.5">
+                            <i class="fa-solid fa-user-plus"></i>
+                            <span>Tambah Warga</span>
+                        </button>
+                        <button onclick="document.getElementById('excelFileInput').click()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2.5 rounded-xl text-xs shadow flex items-center space-x-1.5">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <span>Upload File Excel (.xlsx)</span>
+                        </button>
+                        <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelUpload(event)">
+                    </div>
+                </div>
+
+                <!-- Voter Table -->
+                <div class="overflow-x-auto border border-slate-200 rounded-2xl">
+                    <table class="min-w-full divide-y divide-slate-200 text-left text-xs">
+                        <thead class="bg-slate-100 text-slate-700 uppercase font-bold">
+                            <tr>
+                                <th class="px-4 py-3">NIK</th>
+                                <th class="px-4 py-3">Nama Lengkap</th>
+                                <th class="px-4 py-3">RT/RW</th>
+                                <th class="px-4 py-3">Penempatan TPS & Sekolah</th>
+                                <th class="px-4 py-3">JK</th>
+                                <th class="px-4 py-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminVoterTableBody" class="divide-y divide-slate-200 bg-white"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-slate-100 px-6 py-4 border-t border-slate-200 flex justify-between items-center">
+                <button onclick="resetDefaultData()" class="text-xs text-rose-600 hover:text-rose-800 font-semibold flex items-center space-x-1">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>Reset Data Default</span>
+                </button>
+                <button onclick="closeAdminDashboard()" class="bg-slate-800 hover:bg-slate-900 text-white font-semibold px-5 py-2.5 rounded-xl text-xs shadow">
+                    Tutup Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD/EDIT VOTER MODAL -->
+    <div id="voterFormModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 sm:p-8 animate-fade-in relative">
+            <button onclick="closeVoterFormModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 p-1">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <h3 id="voterModalTitle" class="text-lg font-bold text-slate-900 mb-4">Tambah Data Pemilih</h3>
+            <form onsubmit="saveVoterRecord(event)" class="space-y-3 text-xs">
+                <input type="hidden" id="editOriginalNik">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">NIK (16 Digit)</label>
+                    <input type="text" id="formNik" required maxlength="16" placeholder="332704..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 text-xs">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Nama Lengkap</label>
+                    <input type="text" id="formNama" required placeholder="Nama Sesuai KTP" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 text-xs">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">RT</label>
+                        <input type="text" id="formRt" required placeholder="01" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">RW</label>
+                        <input type="text" id="formRw" required placeholder="01" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs">
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Penempatan TPS & Sekolah</label>
+                    <select id="formTps" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs">
+                        <option value="TPS 1">TPS 1 - Dusun Krajan (SDN 01 Badak)</option>
+                        <option value="TPS 2">TPS 2 - Dusun Jurangjero (SDN 03 Badak)</option>
+                        <option value="TPS 3">TPS 3 - Dusun Situmpeng (SDN 04 Badak)</option>
+                        <option value="TPS 4">TPS 4 - Dusun Simadu (SDN 02 Badak)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Jenis Kelamin</label>
+                    <select id="formJk" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs">
+                        <option value="L">Laki-Laki (L)</option>
+                        <option value="P">Perempuan (P)</option>
+                    </select>
+                </div>
+                <div class="pt-3 flex space-x-2">
+                    <button type="submit" class="w-full bg-brand-700 hover:bg-brand-800 text-white font-bold py-3 rounded-xl shadow text-xs">Simpan Data</button>
+                    <button type="button" onclick="closeVoterFormModal()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold py-3 rounded-xl text-xs">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- PETUGAS COKLIT MODAL -->
+    <div id="coklitModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-6 sm:p-8 animate-fade-in relative">
+            <button onclick="closeCoklitModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 p-1">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <div class="text-center mb-6">
+                <div class="w-14 h-14 bg-emerald-100 text-emerald-700 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl shadow-inner">
+                    <i class="fa-solid fa-clipboard-user"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-900">Portal Petugas Coklit (Pencocokan & Penelitian)</h3>
+                <p class="text-xs text-slate-500 mt-1">Verifikasi pemilih door-to-door untuk Pilkades Desa Badak 2026.</p>
+            </div>
+            <div class="space-y-4 text-xs">
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
+                    <p class="font-semibold text-slate-700"><i class="fa-solid fa-circle-check text-emerald-600 mr-1.5"></i> Tugas Petugas Coklit:</p>
+                    <ul class="list-disc list-inside text-slate-600 space-y-1">
+                        <li>Memeriksa keabsahan NIK warga di TPS 1 s.d TPS 4.</li>
+                        <li>Memastikan pemilih baru atau mutasi tercatat dengan benar.</li>
+                        <li>Melaporkan hasil verifikasi langsung ke Sekretariat Panitia.</li>
+                    </ul>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Cari Pemilih untuk Verifikasi Coklit</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="coklitSearchInput" placeholder="Ketik NIK atau Nama..." class="w-full px-3.5 py-3 bg-slate-50 border border-slate-300 rounded-xl">
+                        <button onclick="runCoklitSearch()" class="bg-emerald-700 hover:bg-emerald-600 text-white px-5 py-3 rounded-xl font-semibold shadow">Cari</button>
+                    </div>
+                </div>
+                <div id="coklitResultBox" class="max-h-48 overflow-y-auto space-y-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 text-slate-400 pt-12 pb-8 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-brand-800 flex items-center justify-center text-amber-400 font-bold">
+                            <i class="fa-solid fa-landmark"></i>
+                        </div>
+                        <span class="text-white font-bold text-base">Pilkades Desa Badak</span>
+                    </div>
+                    <p class="text-xs text-slate-400">
+                        Portal Resmi Cek DPT Pemilihan Kepala Desa Badak Kec. Belik Kab. Pemalang Tahun 2026. Pelaksanaan: Senin, 9 November 2026.
+                    </p>
+                </div>
+                <div>
+                    <h5 class="text-white font-semibold mb-3 text-xs uppercase tracking-wider">TPS 1 & 2</h5>
+                    <ul class="space-y-1.5 text-xs">
+                        <li><span class="text-white font-medium">TPS 1:</span> Dusun Krajan (SDN 01 Badak)</li>
+                        <li><span class="text-white font-medium">TPS 2:</span> Dusun Jurangjero (SDN 03 Badak)</li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-white font-semibold mb-3 text-xs uppercase tracking-wider">TPS 3 & 4</h5>
+                    <ul class="space-y-1.5 text-xs">
+                        <li><span class="text-white font-medium">TPS 3:</span> Dusun Situmpeng (SDN 04 Badak)</li>
+                        <li><span class="text-white font-medium">TPS 4:</span> Dusun Simadu (SDN 02 Badak)</li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-white font-semibold mb-3 text-xs uppercase tracking-wider">Sekretariat Panitia</h5>
+                    <p class="text-xs mb-1"><i class="fa-solid fa-location-dot mr-1.5 text-brand-500"></i> Kantor Desa Badak, Kec. Belik, Pemalang</p>
+                    <p class="text-xs"><i class="fa-solid fa-envelope mr-1.5 text-brand-500"></i> panitia@desabadak2026.id</p>
+                </div>
+            </div>
+            <div class="border-t border-slate-800 pt-6 text-center text-xs text-slate-500">
+                <p>&copy; 2026 Panitia Pemilihan Kepala Desa Badak, Kecamatan Belik, Kabupaten Pemalang. Hak Cipta Dilindungi.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Initial Database with exact TPS schools for Desa Badak 2026
+        const defaultDatabase = [
+            { nik: "3327041001020001", nama: "SARYONO", rt: "01", rw: "01", dusun: "Dusun Krajan", tps: "TPS 1", sekolah: "SDN 01 Badak", jk: "L" },
+            { nik: "3327041001020002", nama: "SITI AMINAH", rt: "02", rw: "01", dusun: "Dusun Krajan", tps: "TPS 1", sekolah: "SDN 01 Badak", jk: "P" },
+            { nik: "3327041001020003", nama: "AHMAD FAUZI", rt: "03", rw: "01", dusun: "Dusun Krajan", tps: "TPS 1", sekolah: "SDN 01 Badak", jk: "L" },
+            { nik: "3327041002030001", nama: "SLAMET RIYADI", rt: "04", rw: "02", dusun: "Dusun Jurangjero", tps: "TPS 2", sekolah: "SDN 03 Badak", jk: "L" },
+            { nik: "3327041002030002", nama: "SITI AISYAH", rt: "05", rw: "02", dusun: "Dusun Jurangjero", tps: "TPS 2", sekolah: "SDN 03 Badak", jk: "P" },
+            { nik: "3327041002030003", nama: "AGUS SETIAWAN", rt: "06", rw: "02", dusun: "Dusun Jurangjero", tps: "TPS 2", sekolah: "SDN 03 Badak", jk: "L" },
+            { nik: "3327041003050001", nama: "WIDODO", rt: "07", rw: "03", dusun: "Dusun Situmpeng", tps: "TPS 3", sekolah: "SDN 04 Badak", jk: "L" },
+            { nik: "3327041003050002", nama: "SRI WAHYUNI", rt: "08", rw: "03", dusun: "Dusun Situmpeng", tps: "TPS 3", sekolah: "SDN 04 Badak", jk: "P" },
+            { nik: "3327041003050003", nama: "BAMBANG SUDIONO", rt: "09", rw: "03", dusun: "Dusun Situmpeng", tps: "TPS 3", sekolah: "SDN 04 Badak", jk: "L" },
+            { nik: "3327041004070001", nama: "ROHMAN HIDAYAT", rt: "10", rw: "04", dusun: "Dusun Simadu", tps: "TPS 4", sekolah: "SDN 02 Badak", jk: "L" },
+            { nik: "3327041004070002", nama: "NUR HARYANTI", rt: "11", rw: "04", dusun: "Dusun Simadu", tps: "TPS 4", sekolah: "SDN 02 Badak", jk: "P" },
+            { nik: "3327041004070003", nama: "KHOERUDIN", rt: "12", rw: "04", dusun: "Dusun Simadu", tps: "TPS 4", sekolah: "SDN 02 Badak", jk: "L" }
+        ];
+
+        let dptDatabase = JSON.parse(localStorage.getItem('dpt_badak_2026_excel_db')) || defaultDatabase;
+
+        function saveDb() {
+            localStorage.setItem('dpt_badak_2026_excel_db', JSON.stringify(dptDatabase));
+            updateStats();
+        }
+
+        function updateStats() {
+            const total = dptDatabase.length;
+            const male = dptDatabase.filter(i => i.jk === 'L').length;
+            const female = dptDatabase.filter(i => i.jk === 'P').length;
+
+            document.getElementById('statTotal').innerText = (total + 1838).toLocaleString('id-ID');
+            document.getElementById('statMale').innerText = (male + 933).toLocaleString('id-ID');
+            document.getElementById('statFemale').innerText = (female + 905).toLocaleString('id-ID');
+
+            document.getElementById('count-tps1').innerText = dptDatabase.filter(i => i.tps === 'TPS 1').length + 517;
+            document.getElementById('count-tps2').innerText = dptDatabase.filter(i => i.tps === 'TPS 2').length + 487;
+            document.getElementById('count-tps3').innerText = dptDatabase.filter(i => i.tps === 'TPS 3').length + 447;
+            document.getElementById('count-tps4').innerText = dptDatabase.filter(i => i.tps === 'TPS 4').length + 387;
+        }
+
+        window.onload = function() {
+            updateStats();
+        };
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('menu-icon');
+            menu.classList.toggle('hidden');
+            icon.className = menu.classList.contains('hidden') ? "fa-solid fa-bars text-2xl" : "fa-solid fa-xmark text-2xl";
+        }
+
+        // Search DPT
+        function handleSearch(e) {
+            e.preventDefault();
+            const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+            const filterTps = document.getElementById('filterTps').value;
+
+            const filtered = dptDatabase.filter(item => {
+                const matchKey = item.nik.toLowerCase().includes(keyword) || item.nama.toLowerCase().includes(keyword);
+                const matchTps = filterTps === 'ALL' || item.tps === filterTps;
+                return matchKey && matchTps;
+            });
+
+            renderSearchResults(filtered);
+        }
+
+        function filterByTpsQuick(tpsName) {
+            document.getElementById('filterTps').value = tpsName;
+            document.getElementById('searchInput').value = "";
+            const filtered = dptDatabase.filter(item => item.tps === tpsName);
+            renderSearchResults(filtered);
+            document.getElementById('cek-dpt').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function renderSearchResults(data) {
+            const container = document.getElementById('resultCardsList');
+            const box = document.getElementById('searchResultBox');
+            const empty = document.getElementById('emptySearchState');
+            const badge = document.getElementById('resultCountBadge');
+
+            container.innerHTML = "";
+            empty.classList.add('hidden');
+            box.classList.remove('hidden');
+            badge.innerText = `${data.length} Ditemukan`;
+
+            if (data.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 bg-amber-50 rounded-2xl border border-amber-200 text-amber-800">
+                        <i class="fa-solid fa-triangle-exclamation text-3xl mb-2 text-amber-600"></i>
+                        <p class="font-bold text-base">Data Pemilih Tidak Ditemukan</p>
+                        <p class="text-xs text-amber-700 mt-1">Pastikan NIK 16 digit atau Nama Lengkap diketik dengan benar atau hubungi Petugas Coklit.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            data.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-fade-in";
+                card.innerHTML = `
+                    <div class="space-y-1">
+                        <div class="flex items-center space-x-2">
+                            <span class="bg-brand-100 text-brand-800 text-xs font-bold px-2.5 py-0.5 rounded-lg">${item.tps}</span>
+                            <span class="text-xs font-semibold text-rose-600"><i class="fa-solid fa-school mr-1"></i>${item.sekolah || 'Fasilitas Sekolah'}</span>
+                        </div>
+                        <h4 class="font-bold text-slate-900 text-base">${item.nama}</h4>
+                        <p class="text-xs text-slate-600 font-mono">NIK: ${item.nik}</p>
+                        <p class="text-xs text-slate-500">${item.dusun} • RT ${item.rt}/RW ${item.rw} • JK: ${item.jk === 'L' ? 'Laki-laki' : 'Perempuan'}</p>
+                    </div>
+                    <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-2.5 rounded-2xl text-xs font-semibold flex items-center space-x-2 w-full sm:w-auto justify-center shadow-sm">
+                        <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                        <span>HAK PILIH TERDAFTAR</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Admin Modal Controls
+        function openAdminLoginModal() { document.getElementById('adminLoginModal').classList.remove('hidden'); }
+        function closeAdminLoginModal() { document.getElementById('adminLoginModal').classList.add('hidden'); }
+        
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const pin = document.getElementById('adminPinInput').value;
+            if (pin === 'badak2026') {
+                closeAdminLoginModal();
+                document.getElementById('adminPinInput').value = "";
+                openAdminDashboard();
+            } else {
+                alert("PIN Admin Salah! Gunakan sandi default: badak2026");
+            }
+        }
+
+        function openAdminDashboard() {
+            renderAdminTable();
+            document.getElementById('adminDashboardModal').classList.remove('hidden');
+        }
+        function closeAdminDashboard() { document.getElementById('adminDashboardModal').classList.add('hidden'); }
+
+        function renderAdminTable() {
+            const tbody = document.getElementById('adminVoterTableBody');
+            document.getElementById('adminTotalCount').innerText = dptDatabase.length;
+            tbody.innerHTML = "";
+
+            if (dptDatabase.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">Belum ada data pemilih.</td></tr>`;
+                return;
+            }
+
+            dptDatabase.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition";
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-mono">${item.nik}</td>
+                    <td class="px-4 py-3 font-bold text-slate-900">${item.nama}</td>
+                    <td class="px-4 py-3">RT ${item.rt}/RW ${item.rw}</td>
+                    <td class="px-4 py-3"><span class="bg-brand-100 text-brand-800 px-2 py-0.5 rounded font-semibold">${item.tps}</span> (${item.sekolah})</td>
+                    <td class="px-4 py-3">${item.jk}</td>
+                    <td class="px-4 py-3 text-center space-x-2">
+                        <button onclick="editVoter(${index})" class="text-blue-600 hover:text-blue-800 px-2 py-1"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deleteVoter(${index})" class="text-rose-600 hover:text-rose-800 px-2 py-1"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openVoterFormModal() {
+            document.getElementById('voterModalTitle').innerText = "Tambah Data Pemilih";
+            document.getElementById('editOriginalNik').value = "";
+            document.getElementById('formNik').value = "";
+            document.getElementById('formNama').value = "";
+            document.getElementById('formRt').value = "";
+            document.getElementById('formRw').value = "";
+            document.getElementById('voterFormModal').classList.remove('hidden');
+        }
+        function closeVoterFormModal() { document.getElementById('voterFormModal').classList.add('hidden'); }
+
+        function saveVoterRecord(e) {
+            e.preventDefault();
+            const origNik = document.getElementById('editOriginalNik').value;
+            const nik = document.getElementById('formNik').value.trim();
+            const nama = document.getElementById('formNama').value.trim().toUpperCase();
+            const rt = document.getElementById('formRt').value.trim();
+            const rw = document.getElementById('formRw').value.trim();
+            const tps = document.getElementById('formTps').value;
+            const jk = document.getElementById('formJk').value;
+            const dusun = tps === 'TPS 1' ? 'Dusun Krajan' : tps === 'TPS 2' ? 'Dusun Jurangjero' : tps === 'TPS 3' ? 'Dusun Situmpeng' : 'Dusun Simadu';
+            const sekolah = tps === 'TPS 1' ? 'SDN 01 Badak' : tps === 'TPS 2' ? 'SDN 03 Badak' : tps === 'TPS 3' ? 'SDN 04 Badak' : 'SDN 02 Badak';
+
+            if (origNik) {
+                const idx = dptDatabase.findIndex(i => i.nik === origNik);
+                if (idx !== -1) dptDatabase[idx] = { nik, nama, rt, rw, dusun, tps, sekolah, jk };
+            } else {
+                if (dptDatabase.some(i => i.nik === nik)) {
+                    alert("NIK sudah terdaftar dalam database!");
+                    return;
+                }
+                dptDatabase.unshift({ nik, nama, rt, rw, dusun, tps, sekolah, jk });
+            }
+
+            saveDb();
+            closeVoterFormModal();
+            renderAdminTable();
+        }
+
+        function editVoter(idx) {
+            const item = dptDatabase[idx];
+            document.getElementById('voterModalTitle').innerText = "Edit Data Pemilih";
+            document.getElementById('editOriginalNik').value = item.nik;
+            document.getElementById('formNik').value = item.nik;
+            document.getElementById('formNama').value = item.nama;
+            document.getElementById('formRt').value = item.rt;
+            document.getElementById('formRw').value = item.rw;
+            document.getElementById('formTps').value = item.tps;
+            document.getElementById('formJk').value = item.jk;
+            document.getElementById('voterFormModal').classList.remove('hidden');
+        }
+
+        function deleteVoter(idx) {
+            if (confirm("Hapus data pemilih ini dari database DPT?")) {
+                dptDatabase.splice(idx, 1);
+                saveDb();
+                renderAdminTable();
+            }
+        }
+
+        function resetDefaultData() {
+            if (confirm("Kembalikan database ke data awal default Desa Badak?")) {
+                dptDatabase = [...defaultDatabase];
+                saveDb();
+                renderAdminTable();
+            }
+        }
+
+        // Excel Upload Handler (SheetJS)
+        function handleExcelUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const data = new Uint8Array(evt.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.SheetNames[0];
+                    const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+
+                    if (sheetData.length === 0) {
+                        alert("File Excel kosong atau format tidak terbaca!");
+                        return;
+                    }
+
+                    let addedCount = 0;
+                    sheetData.forEach(row => {
+                        const nik = String(row.NIK || row.nik || `332704${Math.floor(Math.random()*10000000000)}`).trim();
+                        const nama = String(row.Nama || row.nama || 'WARGA BADAK').trim().toUpperCase();
+                        const rt = String(row.RT || row.rt || '01').trim();
+                        const rw = String(row.RW || row.rw || '01').trim();
+                        const tps = String(row.TPS || row.tps || 'TPS 1').trim();
+                        const jk = String(row.JK || row.jk || 'L').trim().toUpperCase();
+                        const dusun = tps.includes('2') ? 'Dusun Jurangjero' : tps.includes('3') ? 'Dusun Situmpeng' : tps.includes('4') ? 'Dusun Simadu' : 'Dusun Krajan';
+                        const sekolah = tps.includes('2') ? 'SDN 03 Badak' : tps.includes('3') ? 'SDN 04 Badak' : tps.includes('4') ? 'SDN 02 Badak' : 'SDN 01 Badak';
+
+                        if (!dptDatabase.some(i => i.nik === nik)) {
+                            dptDatabase.unshift({ nik, nama, rt, rw, dusun, tps, sekolah, jk });
+                            addedCount++;
+                        }
+                    });
+
+                    saveDb();
+                    renderAdminTable();
+                    alert(`Berhasil mengimpor ${addedCount} data pemilih baru dari file Excel!`);
+                } catch (err) {
+                    console.error(err);
+                    alert("Gagal memproses file Excel. Pastikan kolom sesuai.");
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function downloadExcelTemplate() {
+            const sample = [
+                { NIK: "3327041001020001", Nama: "CONTOH WARGA", RT: "01", RW: "01", TPS: "TPS 1", JK: "L" }
+            ];
+            const ws = XLSX.utils.json_to_sheet(sample);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Template DPT Badak");
+            XLSX.writeFile(wb, "Template_DPT_Pilkades_Desa_Badak_2026.xlsx");
+        }
+
+        // Coklit Portal
+        function openCoklitModal() { document.getElementById('coklitModal').classList.remove('hidden'); }
+        function closeCoklitModal() { document.getElementById('coklitModal').classList.add('hidden'); }
+
+        function runCoklitSearch() {
+            const q = document.getElementById('coklitSearchInput').value.trim().toLowerCase();
+            const box = document.getElementById('coklitResultBox');
+            box.innerHTML = "";
+
+            const matches = dptDatabase.filter(i => i.nik.toLowerCase().includes(q) || i.nama.toLowerCase().includes(q));
+            if (matches.length === 0) {
+                box.innerHTML = `<p class="text-slate-400 text-center py-2">Tidak ditemukan data warga.</p>`;
+                return;
+            }
+
+            matches.forEach(m => {
+                box.innerHTML += `
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex justify-between items-center">
+                        <div>
+                            <p class="font-bold text-slate-900">${m.nama}</p>
+                            <p class="font-mono text-[11px] text-slate-500">NIK: ${m.nik} • ${m.tps} (${m.sekolah})</p>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-1 rounded-lg">TERVERIFIKASI</span>
+                    </div>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>
